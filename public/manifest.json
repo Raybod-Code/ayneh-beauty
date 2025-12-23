@@ -1,0 +1,32 @@
+{
+  "name": "آینه بیوتی - سالن زیبایی",
+  "short_name": "آینه",
+  "description": "سیستم جامع مدیریت آرایشگاه و سالن زیبایی",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#C8A951",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "fa",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
