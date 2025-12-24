@@ -31,7 +31,7 @@ export default function Navbar() {
   }
 
   // جدید (هم /admin هم /superadmin):
-  if (pathname?.startsWith("/salon") || pathname?.startsWith("/superadmin")) {
+  if (pathname?.startsWith("/salon")  || pathname?.startsWith("/superadmin") || pathname?.startsWith("/platform")) {
     return null;
   }
 
