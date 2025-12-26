@@ -1,201 +1,194 @@
 // components/platform/PlatformCTA.tsx
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { ArrowLeft, Sparkles, CheckCircle2, Zap, Calendar } from "lucide-react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
+import { ArrowLeft, Sparkles, Rocket, Zap } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
+import NoiseTexture from "@/components/ui/NoiseTexture";
+import { useEffect, memo } from "react";
 
-export default function PlatformCTA() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+// Cursor glow (مثل Signup/ Hero)
+const CustomCursorGlow = memo(() => {
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+
+  const springConfig = { damping: 25, stiffness: 200 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
+
+  useEffect(() => {
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+    };
+    window.addEventListener("mousemove", moveCursor);
+    return () => window.removeEventListener("mousemove", moveCursor);
+  }, [cursorX, cursorY]);
 
   return (
-    <section className="relative py-32 overflow-hidden bg-[#050505]">
-      
-      {/* Noise */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
+    <motion.div
+      className="pointer-events-none fixed top-0 left-0 w-8 h-8 rounded-full z-40 mix-blend-screen"
+      style={{
+        x: cursorXSpring,
+        y: cursorYSpring,
+        translateX: "-50%",
+        translateY: "-50%",
+        background:
+          "radial-gradient(circle, hsl(43, 74%, 66%) 0%, transparent 70%)",
+        filter: "blur(8px)",
+      }}
+    />
+  );
+});
+CustomCursorGlow.displayName = "CustomCursorGlow";
 
-      {/* Animated Background */}
+export default function PlatformCTA() {
+  return (
+    <section className="relative py-24 bg-gradient-to-b from-[#050505] to-[#0a0a0a] overflow-hidden">
+      {/* Cursor Glow */}
+      <CustomCursorGlow />
+
+      {/* Noise Texture */}
+      <NoiseTexture />
+
+      {/* Background Effects */}
       <div className="absolute inset-0">
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[800px] bg-gradient-to-r from-brand-gold/10 via-luxury-gold-light/10 to-brand-gold/10 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-gold/20 rounded-full blur-[80px]"
+          style={{ willChange: "transform, opacity" }}
           animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 90, 0],
+            scale: [1, 1.3, 1],
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
-            duration: 20,
+            duration: 8,
             repeat: Infinity,
-            ease: "linear",
+            ease: "easeInOut",
           }}
         />
-
-        {/* Floating Particles */}
-        {[...Array(30)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-brand-gold/20 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -50, 0],
-              opacity: [0, 0.8, 0],
-              scale: [0, 1.5, 0],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 3,
-            }}
-          />
-        ))}
       </div>
 
-      <div ref={ref} className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-12">
-        
+      <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-8 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-white/[0.05] backdrop-blur-2xl border border-white/10 shadow-2xl"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative"
         >
-          
-          {/* Inner Noise */}
-          <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
+          {/* Main Card */}
+          <div className="relative p-12 sm:p-16 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/10 overflow-hidden">
+            <NoiseTexture />
 
-          {/* Inner Glow */}
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-gold/10 via-transparent to-transparent" />
-          
-          {/* Content */}
-          <div className="relative z-10 p-12 sm:p-16 lg:p-20 text-center">
-            
-            {/* Sparkle Icon */}
+            {/* Top gradient line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+
+            {/* Floating icons */}
             <motion.div
-              className="inline-flex items-center justify-center w-20 h-20 mb-8 rounded-3xl bg-gradient-to-br from-brand-gold to-luxury-gold-light shadow-2xl shadow-brand-gold/30"
+              className="absolute top-8 left-8"
               animate={{
-                rotate: [0, 360],
-                scale: [1, 1.1, 1],
+                y: [0, -10, 0],
+                rotate: [0, 5, 0],
               }}
               transition={{
-                rotate: {
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "linear",
-                },
-                scale: {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                },
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
               }}
             >
-              <Sparkles className="w-10 h-10 text-white" />
+              <Rocket className="w-8 h-8 text-brand-gold/30" />
             </motion.div>
 
-            {/* Heading */}
-            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white">
-              آماده برای
-              <br />
-              <span className="bg-gradient-to-l from-brand-gold via-luxury-gold-light to-brand-gold bg-clip-text text-transparent">
-                شروع سفر دیجیتال
-              </span>
-              <br />
-              هستید؟
-            </h2>
+            <motion.div
+              className="absolute bottom-8 right-8"
+              animate={{
+                y: [0, 10, 0],
+                rotate: [0, -5, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.5,
+              }}
+            >
+              <Zap className="w-8 h-8 text-luxury-emerald-400/30" />
+            </motion.div>
 
-            <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-              به جمع ۲,۵۰۰ سالن موفق بپیوندید و تجربه‌ای متفاوت برای مشتریان خود بسازید
-            </p>
-
-            {/* Features Quick List */}
-            <div className="grid sm:grid-cols-3 gap-4 mb-12 max-w-3xl mx-auto">
-              {[
-                { icon: CheckCircle2, text: '۳۰ روز رایگان' },
-                { icon: Zap, text: 'راه‌اندازی سریع' },
-                { icon: Calendar, text: 'لغو در هر زمان' },
-              ].map((item, i) => (
+            <div className="relative">
+              {/* Badge */}
+              <motion.div
+                className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-gradient-to-r from-brand-gold/20 to-luxury-gold-light/20 border border-brand-gold/30 relative overflow-hidden group"
+                animate={{
+                  boxShadow: [
+                    "0 0 0 0 rgba(236, 179, 101, 0.4)",
+                    "0 0 0 10px rgba(236, 179, 101, 0)",
+                  ],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              >
                 <motion.div
-                  key={i}
-                  className="relative flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 overflow-hidden"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: 0.2 + i * 0.1, duration: 0.6 }}
-                  whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.1)' }}
-                >
-                  <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
-                  <div className="relative w-8 h-8 rounded-xl bg-brand-gold/20 flex items-center justify-center flex-shrink-0">
-                    <item.icon className="w-4 h-4 text-brand-gold" />
-                  </div>
-                  <span className="relative text-sm text-gray-300 font-medium">{item.text}</span>
-                </motion.div>
-              ))}
-            </div>
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"
+                />
+                <Sparkles className="w-4 h-4 text-brand-gold relative z-10" />
+                <span className="text-sm font-bold text-brand-gold relative z-10">
+                  آماده شروع هستید؟
+                </span>
+              </motion.div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-              <Link href="/platform/signup">
-                <motion.button
-                  className="group relative w-full sm:w-auto overflow-hidden px-10 py-5 bg-gradient-to-r from-brand-gold via-luxury-gold to-brand-gold bg-[length:200%_auto] text-black rounded-full font-bold text-lg shadow-2xl shadow-brand-gold/40"
-                  whileHover={{ 
-                    scale: 1.05,
-                    backgroundPosition: 'right center',
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    <span>شروع رایگان کنید</span>
-                    <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                      }}
-                    >
-                      <ArrowLeft className="w-5 h-5" />
-                    </motion.div>
+              {/* Heading */}
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+                سالن خود را همین امروز{" "}
+                <span className="relative inline-block">
+                  <span className="absolute -inset-1 bg-gradient-to-r from-brand-gold to-luxury-gold-light blur-2xl opacity-40"></span>
+                  <span className="relative bg-gradient-to-r from-brand-gold to-luxury-gold-light bg-clip-text text-transparent">
+                    دیجیتال کنید
                   </span>
-                  
-                  {/* Shine Effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                    initial={{ x: '-100%' }}
-                    animate={{ x: '200%' }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 1,
-                    }}
-                  />
-                </motion.button>
-              </Link>
+                </span>
+              </h2>
 
-              <Link href="/">
-                <motion.button
-                  className="w-full sm:w-auto px-10 py-5 border-2 border-white/20 text-white rounded-full font-bold text-lg hover:bg-white/10 hover:border-white/30 transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  مشاهده نمونه کار
-                </motion.button>
-              </Link>
+              <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+                بدون نیاز به کد نویسی، بدون هزینه راه‌اندازی. فقط ۵ دقیقه فرصت لازم است.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link href="/platform/signup" className="w-full sm:w-auto">
+                  <motion.button
+                    className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-brand-gold to-luxury-gold-light text-black rounded-2xl font-bold text-lg shadow-2xl shadow-brand-gold/30 hover:shadow-brand-gold/50 transition-all flex items-center justify-center gap-3 group relative overflow-hidden"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {/* Shine effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
+                    />
+                    <span className="relative z-10">شروع رایگان ۳۰ روزه</span>
+                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform relative z-10" />
+                  </motion.button>
+                </Link>
+
+                <Link href="/platform/demo">
+                  <motion.button
+                    className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    مشاهده دمو
+                  </motion.button>
+                </Link>
+              </div>
+
+              {/* Bottom text */}
+              <p className="text-sm text-gray-500 mt-8">
+                بدون نیاز به کارت اعتباری • لغو در هر زمان • پشتیبانی ۲۴/۷
+              </p>
             </div>
-
-            {/* Fine Print */}
-            <p className="mt-8 text-sm text-gray-500">
-              نیازی به کارت اعتباری نیست • راه‌اندازی در ۵ دقیقه • پشتیبانی رایگان
-            </p>
-
           </div>
-
-          {/* Decorative Elements */}
-          <div className="absolute top-0 left-0 w-40 h-40 bg-brand-gold/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-60 h-60 bg-luxury-gold-light/10 rounded-full blur-3xl" />
-
         </motion.div>
-
       </div>
     </section>
   );

@@ -1,229 +1,321 @@
 // components/platform/PlatformPricing.tsx
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { 
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
+import {
   Check,
   Crown,
-  Zap,
-  Users,
-  Globe,
-  Brain,
-  Shield,
   Sparkles,
-  ArrowLeft,
-  TrendingUp,
+  Zap,
   Star,
-  Infinity
+  Gift,
+  ArrowLeft,
+  Info,
+  TrendingUp,
 } from "lucide-react";
-import { useRef, useState } from "react";
 import Link from "next/link";
+import { useState, useEffect, memo } from "react";
+import NoiseTexture from "@/components/ui/NoiseTexture";
 
 const plans = [
   {
-    id: 'starter',
-    name: 'استارتر',
-    slug: 'starter',
-    icon: Shield,
-    price_monthly: 0,
-    price_yearly: 0,
-    description: 'برای شروع و آزمایش',
-    popular: false,
-    gradient: 'from-luxury-slate-500 to-luxury-slate-600',
-    features: [
-      { text: 'پنل مدیریت پایه' },
-      { text: '۳ کاربر پرسنل' },
-      { text: '۵۰ رزرو در ماه' },
-      { text: 'پشتیبانی ایمیلی' },
-      { text: 'گزارش‌های ساده' },
-    ]
-  },
-  {
-    id: 'professional',
-    name: 'حرفه‌ای',
-    slug: 'professional',
+    name: "پایه",
     icon: Zap,
-    price_monthly: 49,
-    price_yearly: 470,
-    description: 'برای سالن‌های در حال رشد',
-    popular: false,
-    gradient: 'from-luxury-sky-500 to-luxury-sky-600',
+    price: "رایگان",
+    duration: "۳۰ روز",
+    description: "برای سالن‌های کوچک و شروع کار",
+    color: "hsl(193, 82%, 66%)",
+    gradient: "from-luxury-sky-500/20 to-transparent",
     features: [
-      { text: 'تمام امکانات استارتر' },
-      { text: '۱۰ کاربر پرسنل' },
-      { text: 'رزرو نامحدود' },
-      { text: 'آنالیز چهره AI' },
-      { text: 'پشتیبانی اولویت‌دار' },
-      { text: 'گزارش‌های پیشرفته' },
-    ]
+      "۱۰۰ رزرو رایگان در ماه",
+      "۱ کاربر مدیریتی",
+      "پنل مدیریت ساده",
+      "پشتیبانی ایمیلی",
+      "گزارش‌گیری پایه",
+      "رزرو آنلاین ۲۴/۷",
+    ],
+    cta: "شروع رایگان",
+    popular: false,
   },
   {
-    id: 'business',
-    name: 'کسب‌وکار',
-    slug: 'business',
+    name: "حرفه‌ای",
     icon: Crown,
-    price_monthly: 99,
-    price_yearly: 950,
-    description: 'محبوب‌ترین انتخاب',
-    popular: true,
-    gradient: 'from-brand-gold to-luxury-gold-light',
+    price: 490000,
+    duration: "ماهانه",
+    description: "برای سالن‌های فعال و در حال رشد",
+    color: "hsl(43, 74%, 66%)",
+    gradient: "from-brand-gold/20 to-transparent",
     features: [
-      { text: 'تمام امکانات حرفه‌ای' },
-      { text: '۳۰ کاربر پرسنل' },
-      { text: 'رزرو نامحدود' },
-      { text: 'دامنه اختصاصی' },
-      { text: 'تمام قابلیت‌های AI' },
-      { text: 'پشتیبانی ۲۴/۷' },
-      { text: 'اپلیکیشن موبایل' },
-    ]
+      "رزرو نامحدود",
+      "تا ۵ کاربر مدیریتی",
+      "پشتیبانی تلفنی ۲۴/۷",
+      "گزارش‌های پیشرفته و آماری",
+      "پیام‌رسانی خودکار (SMS/Email)",
+      "وب‌سایت اختصاصی سالن",
+      "اپلیکیشن موبایل",
+      "تخفیف ۱۰٪ برای مواد اولیه",
+    ],
+    cta: "انتخاب این پلن",
+    popular: true,
   },
   {
-    id: 'enterprise',
-    name: 'سازمانی',
-    slug: 'enterprise',
-    icon: Sparkles,
-    price_monthly: null,
-    price_yearly: null,
-    description: 'برای شبکه‌های بزرگ',
-    popular: false,
-    gradient: 'from-luxury-rose-500 to-luxury-rose-600',
+    name: "سازمانی",
+    icon: Star,
+    price: "تماس بگیرید",
+    duration: "قرارداد سالانه",
+    description: "برای مجموعه‌ها و زنجیره سالن‌ها",
+    color: "hsl(280, 80%, 70%)",
+    gradient: "from-purple-500/20 to-transparent",
     features: [
-      { text: 'تمام امکانات کسب‌وکار' },
-      { text: 'پرسنل نامحدود' },
-      { text: 'چند شعبه' },
-      { text: 'API اختصاصی' },
-      { text: 'مشاور اختصاصی' },
-      { text: 'قرارداد SLA' },
-      { text: 'سفارشی‌سازی کامل' },
-    ]
+      "تمام امکانات پلن حرفه‌ای",
+      "تعداد نامحدود کاربر و شعبه",
+      "مدیریت متمرکز چند شعبه",
+      "API اختصاصی برای یکپارچگی",
+      "مشاور اختصاصی کسب‌وکار",
+      "آموزش حضوری و آنلاین",
+      "قرارداد SLA تضمینی",
+      "سفارشی‌سازی کامل سیستم",
+    ],
+    cta: "درخواست مشاوره",
+    popular: false,
   },
 ];
 
-export default function PlatformPricing() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+// Cursor glow
+const CustomCursorGlow = memo(() => {
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+
+  const springConfig = { damping: 25, stiffness: 200 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
+
+  useEffect(() => {
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+    };
+    window.addEventListener("mousemove", moveCursor);
+    return () => window.removeEventListener("mousemove", moveCursor);
+  }, [cursorX, cursorY]);
 
   return (
-    <section id="pricing" className="relative py-32 bg-gradient-to-b from-[#050505] via-brand-dark to-[#050505] overflow-hidden">
-      
-      {/* Noise */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
+    <motion.div
+      className="pointer-events-none fixed top-0 left-0 w-8 h-8 rounded-full z-40 mix-blend-screen"
+      style={{
+        x: cursorXSpring,
+        y: cursorYSpring,
+        translateX: "-50%",
+        translateY: "-50%",
+        background:
+          "radial-gradient(circle, hsl(43, 74%, 66%) 0%, transparent 70%)",
+        filter: "blur(8px)",
+      }}
+    />
+  );
+});
+CustomCursorGlow.displayName = "CustomCursorGlow";
 
-      {/* Background Effects */}
+const PricingToggle = ({
+  isYearly,
+  setIsYearly,
+}: {
+  isYearly: boolean;
+  setIsYearly: (value: boolean) => void;
+}) => {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
+      <button
+        onClick={() => setIsYearly(false)}
+        className={`text-sm font-medium transition-colors ${
+          !isYearly ? "text-white" : "text-gray-500"
+        }`}
+      >
+        پرداخت ماهانه
+      </button>
+
+      <motion.button
+        className="relative w-16 h-8 rounded-full bg-white/10 border border-white/20"
+        onClick={() => setIsYearly(!isYearly)}
+        whileTap={{ scale: 0.95 }}
+      >
+        <motion.div
+          className="absolute top-1 w-6 h-6 rounded-full bg-gradient-to-r from-brand-gold to-luxury-gold-light shadow-lg"
+          animate={{
+            right: isYearly ? 4 : 36,
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        />
+      </motion.button>
+
+      <button
+        onClick={() => setIsYearly(true)}
+        className="flex items-center gap-2"
+      >
+        <span
+          className={`text-sm font-medium transition-colors ${
+            isYearly ? "text-white" : "text-gray-500"
+          }`}
+        >
+          پرداخت سالانه
+        </span>
+        <motion.div
+          className="px-2 py-1 rounded-full bg-luxury-emerald-500/20 border border-luxury-emerald-500/30"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <span className="text-xs font-bold text-luxury-emerald-400">
+            ۲۰٪ تخفیف
+          </span>
+        </motion.div>
+      </button>
+    </div>
+  );
+};
+
+export default function PlatformPricing() {
+  const [isYearly, setIsYearly] = useState(false);
+
+  return (
+    <section
+      id="pricing"
+      className="relative py-24 bg-gradient-to-b from-[#0a0a0a] to-[#050505] overflow-hidden"
+    >
+      <CustomCursorGlow />
+
+      {/* Noise Texture */}
+      <NoiseTexture />
+
+      {/* Background Glow (lighter blur for perf) */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-brand-gold/5 rounded-full blur-3xl" />
+        <motion.div
+          className="absolute top-1/3 right-1/3 w-[600px] h-[600px] bg-brand-gold/10 rounded-full blur-[80px]"
+          style={{ willChange: "transform, opacity" }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
       </div>
 
-      <div ref={ref} className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        
-        {/* Header */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
-            <Crown className="w-4 h-4 text-brand-gold" />
-            <span className="text-sm font-semibold text-white">پلن‌های اشتراک</span>
-          </div>
-          
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            پلن مناسب خود را{" "}
-            <br className="hidden sm:block" />
-            <span className="bg-gradient-to-l from-brand-gold to-luxury-gold-light bg-clip-text text-transparent">
-              انتخاب کنید
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-brand-gold/20 to-luxury-gold-light/20 backdrop-blur-xl border border-brand-gold/30"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Sparkles className="w-4 h-4 text-brand-gold" />
+            <span className="text-sm font-bold text-brand-gold">
+              قیمت‌گذاری شفاف و منصفانه
+            </span>
+          </motion.div>
+
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+            پلنی برای{" "}
+            <span className="relative inline-block">
+              <span className="absolute -inset-1 bg-gradient-to-r from-brand-gold to-luxury-gold-light blur-2xl opacity-30"></span>
+              <span className="relative bg-gradient-to-r from-brand-gold to-luxury-gold-light bg-clip-text text-transparent">
+                هر اندازه سالن
+              </span>
             </span>
           </h2>
-          
-          <p className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed mb-10">
-            هر آنچه برای دیجیتالی کردن سالن زیبایی خود نیاز دارید
+
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+            بدون هزینه پنهان. بدون قرارداد بلندمدت. لغو رایگان در هر زمان.
           </p>
 
-          {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-4 p-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10">
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-300 ${
-                billingCycle === 'monthly'
-                  ? 'bg-brand-gold text-black'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              ماهانه
-            </button>
-            <button
-              onClick={() => setBillingCycle('yearly')}
-              className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
-                billingCycle === 'yearly'
-                  ? 'bg-brand-gold text-black'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              سالانه
-              <span className="px-2 py-0.5 bg-luxury-emerald-500/20 text-luxury-emerald-400 rounded-full text-xs font-bold">
-                ۲۰٪ تخفیف
-              </span>
-            </button>
-          </div>
+          <PricingToggle isYearly={isYearly} setIsYearly={setIsYearly} />
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4">
-          {plans.map((plan, index) => {
-            const Icon = plan.icon;
-            const isPopular = plan.popular;
-            const price = billingCycle === 'monthly' ? plan.price_monthly : plan.price_yearly;
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {plans.map((plan, i) => {
+            const displayPrice =
+              typeof plan.price === "number"
+                ? isYearly
+                  ? Math.floor(plan.price * 12 * 0.8).toLocaleString("fa-IR")
+                  : plan.price.toLocaleString("fa-IR")
+                : plan.price;
 
             return (
               <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 60, scale: 0.9 }}
-                animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-                transition={{
-                  delay: index * 0.1,
-                  duration: 0.6,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={`relative group ${
-                  isPopular ? 'lg:-mt-6 lg:mb-6' : ''
-                }`}
-                whileHover={{ y: -8 }}
+                key={plan.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="relative group"
               >
                 {/* Popular Badge */}
-                {isPopular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-brand-gold to-luxury-gold-light text-black px-4 py-1.5 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-2xl">
-                      <Star className="w-3 h-3 fill-current" />
-                      <span>محبوب‌ترین</span>
+                {plan.popular && (
+                  <motion.div
+                    className="absolute -top-4 left-1/2 -translate-x-1/2 z-20"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                  >
+                    <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-brand-gold to-luxury-gold-light text-black text-xs font-bold shadow-lg flex items-center gap-1">
+                      <Crown className="w-3 h-3" />
+                      پرطرفدارترین انتخاب
                     </div>
-                  </div>
+                  </motion.div>
                 )}
 
-                {/* Glow */}
-                <div className={`absolute -inset-0.5 bg-gradient-to-r ${plan.gradient} rounded-3xl opacity-0 group-hover:opacity-30 blur-2xl transition-opacity duration-500`} />
-
-                {/* Card */}
                 <div
-                  className={`relative h-full bg-white/[0.03] backdrop-blur-xl rounded-3xl overflow-hidden transition-all duration-500 ${
-                    isPopular
-                      ? 'border-2 border-brand-gold/50 shadow-2xl shadow-brand-gold/20'
-                      : 'border border-white/10 hover:border-white/20'
-                  }`}
+                  className={`
+                    relative h-full p-8 rounded-3xl border transition-all overflow-hidden
+                    ${
+                      plan.popular
+                        ? "bg-white/[0.04] backdrop-blur-xl border-brand-gold/30 shadow-2xl shadow-brand-gold/20"
+                        : "bg-white/[0.02] backdrop-blur-xl border-white/10"
+                    }
+                  `}
                 >
-                  {/* Noise */}
-                  <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
+                  <NoiseTexture />
 
-                  <div className="relative z-10 p-8">
+                  {/* Gradient overlay */}
+                  <motion.div
+                    className={`absolute inset-0 bg-gradient-to-br ${plan.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                  />
+
+                  {/* Top glow for popular plan */}
+                  {plan.popular && (
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+                  )}
+
+                  <div className="relative flex flex-col h-full">
                     {/* Icon */}
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 bg-gradient-to-br ${plan.gradient} shadow-2xl transition-transform duration-500 group-hover:scale-110`}>
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
+                    <motion.div
+                      className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <plan.icon
+                        className="w-7 h-7"
+                        style={{ color: plan.color }}
+                      />
+                    </motion.div>
 
-                    {/* Plan Name */}
-                    <h3 className="font-serif text-2xl font-bold mb-2 text-white">
-                      {plan.name}
+                    {/* Plan Info */}
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      پلن {plan.name}
                     </h3>
                     <p className="text-sm text-gray-400 mb-6">
                       {plan.description}
@@ -231,56 +323,64 @@ export default function PlatformPricing() {
 
                     {/* Price */}
                     <div className="mb-8">
-                      {price !== null ? (
-                        <>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-bold text-white">
-                              ${price}
-                            </span>
-                            <span className="text-gray-500">
-                              /{billingCycle === 'monthly' ? 'ماه' : 'سال'}
-                            </span>
-                          </div>
-                          {billingCycle === 'yearly' && (
-                            <p className="text-sm text-luxury-emerald-400 mt-2 font-medium">
-                              ${Math.round(price / 12)} در ماه
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-3xl font-bold text-white">
-                          تماس بگیرید
-                        </div>
-                      )}
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-4xl font-bold text-white">
+                          {displayPrice}
+                        </span>
+                        {typeof plan.price === "number" && (
+                          <span className="text-sm text-gray-500">تومان</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        {typeof plan.price === "number" && isYearly
+                          ? "سالانه (۲ ماه رایگان)"
+                          : plan.duration}
+                      </p>
                     </div>
 
                     {/* Features */}
-                    <ul className="space-y-4 mb-8">
+                    <ul className="space-y-4 mb-8 flex-1">
                       {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${plan.gradient} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                            <Check className="w-3 h-3 text-white" />
+                        <motion.li
+                          key={feature}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.3 + idx * 0.05 }}
+                          className="flex items-start gap-3"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-luxury-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-3 h-3 text-luxury-emerald-400" />
                           </div>
                           <span className="text-sm text-gray-300">
-                            {feature.text}
+                            {feature}
                           </span>
-                        </li>
+                        </motion.li>
                       ))}
                     </ul>
 
-                    {/* CTA */}
-                    <Link href="/platform/signup">
+                    {/* CTA Button */}
+                    <Link href="/platform/signup" className="block mt-auto">
                       <motion.button
-                        className={`w-full py-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
-                          isPopular
-                            ? 'bg-gradient-to-r from-brand-gold to-luxury-gold-light text-black hover:shadow-xl hover:shadow-brand-gold/30'
-                            : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 hover:border-white/30'
-                        }`}
+                        className={`
+                          w-full py-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-3 relative overflow-hidden
+                          ${
+                            plan.popular
+                              ? "bg-gradient-to-r from-brand-gold to-luxury-gold-light text-black shadow-2xl shadow-brand-gold/30 hover:shadow-brand-gold/50"
+                              : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                          }
+                        `}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        <span>شروع کنید</span>
-                        <ArrowLeft className="w-4 h-4" />
+                        {plan.popular && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
+                          />
+                        )}
+
+                        <span className="relative z-10">{plan.cta}</span>
+                        <ArrowLeft className="w-5 h-5 relative z-10" />
                       </motion.button>
                     </Link>
                   </div>
@@ -290,35 +390,66 @@ export default function PlatformPricing() {
           })}
         </div>
 
-        {/* Trust Badges */}
+        {/* Bottom Info */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-20 pt-16 border-t border-white/10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="text-center"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { icon: Shield, text: 'پرداخت امن' },
-              { icon: Check, text: 'لغو در هر زمان' },
-              { icon: Crown, text: 'پشتیبانی ۲۴/۷' },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                className="text-center group"
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/5 border border-white/10 mb-4 group-hover:border-brand-gold/30 transition-all">
-                  <item.icon className="w-6 h-6 text-brand-gold" />
-                </div>
-                <p className="text-sm text-gray-400 group-hover:text-white transition-colors">
-                  {item.text}
-                </p>
-              </motion.div>
-            ))}
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10 mb-6">
+            <Info className="w-5 h-5 text-brand-gold" />
+            <span className="text-sm text-gray-400">
+              تمامی پلن‌ها شامل{" "}
+              <span className="text-white font-semibold">
+                ۳۰ روز ضمانت بازگشت وجه
+              </span>{" "}
+              هستند
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="p-4 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10"
+            >
+              <Gift className="w-8 h-8 text-brand-gold mx-auto mb-3" />
+              <h4 className="text-sm font-semibold text-white mb-1">
+                بدون هزینه اولیه
+              </h4>
+              <p className="text-xs text-gray-500">
+                شروع آسان در چند دقیقه
+              </p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="p-4 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10"
+            >
+              <TrendingUp className="w-8 h-8 text-luxury-emerald-400 mx-auto mb-3" />
+              <h4 className="text-sm font-semibold text-white mb-1">
+                ارتقای فوری
+              </h4>
+              <p className="text-xs text-gray-500">
+                تغییر پلن در یک کلیک
+              </p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="p-4 rounded-2xl bg-white/[0.02] backdrop-blur-xl border border-white/10"
+            >
+              <Zap className="w-8 h-8 text-luxury-sky-400 mx-auto mb-3" />
+              <h4 className="text-sm font-semibold text-white mb-1">
+                بدون قید و بند
+              </h4>
+              <p className="text-xs text-gray-500">
+                لغو آسان بدون جریمه
+              </p>
+            </motion.div>
           </div>
         </motion.div>
-
       </div>
     </section>
   );

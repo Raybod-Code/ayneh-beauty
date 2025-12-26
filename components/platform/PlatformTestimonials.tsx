@@ -1,233 +1,257 @@
 // components/platform/PlatformTestimonials.tsx
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { Star, Quote, TrendingUp, Users, Award } from "lucide-react";
-import { useRef } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect, memo } from "react";
+import { Star, Quote } from "lucide-react";
+import NoiseTexture from "@/components/ui/NoiseTexture";
+// import Image from "next/image"; // اگر بعدها آواتار واقعی داشتی
+
+// Cursor glow (shared)
+const CustomCursorGlow = memo(() => {
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+
+  const cursorXSpring = useTransform(cursorX, (v) => v);
+  const cursorYSpring = useTransform(cursorY, (v) => v);
+
+  useEffect(() => {
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+    };
+    window.addEventListener("mousemove", moveCursor);
+    return () => window.removeEventListener("mousemove", moveCursor);
+  }, [cursorX, cursorY]);
+
+  return (
+    <motion.div
+      className="pointer-events-none fixed top-0 left-0 w-8 h-8 rounded-full z-40 mix-blend-screen"
+      style={{
+        x: cursorXSpring,
+        y: cursorYSpring,
+        translateX: "-50%",
+        translateY: "-50%",
+        background:
+          "radial-gradient(circle, hsl(43, 74%, 66%) 0%, transparent 70%)",
+        filter: "blur(8px)",
+      }}
+    />
+  );
+});
+CustomCursorGlow.displayName = "CustomCursorGlow";
 
 const testimonials = [
   {
-    id: 1,
     name: "سارا احمدی",
-    role: "مدیر سالن رز طلایی",
+    role: "مدیر سالن رز",
+    image: "/avatars/avatar1.jpg",
+    content:
+      "قبل از آینه، بیشتر زمانم پای هماهنگی تلفنی و جا‌به‌جایی نوبت‌ها می‌رفت. الان رزروها مرتب تو سیستم میاد، تداخل نداریم و من می‌تونم روی کیفیت خدمات تمرکز کنم.",
+    rating: 5,
     location: "تهران",
-    avatar: "SA",
-    content: "آینه واقعاً کسب‌وکار ما را متحول کرد. رزروهای آنلاین ۳۰۰٪ افزایش یافت و دیگر نیازی به دفتر کاغذی نداریم. سیستم AI برای تحلیل چهره مشتریان فوق‌العاده است!",
-    stats: { revenue: "+۲۵۰%", customers: "+۱۲۰۰", rating: 4.9 },
-    rating: 5,
-    gradient: "from-luxury-rose-500 to-luxury-rose-600"
   },
   {
-    id: 2,
     name: "مریم کریمی",
-    role: "صاحب سالن اُرکیده",
-    location: "شیراز",
-    avatar: "MK",
-    content: "قبل از آینه، مدیریت ۳ شعبه‌مان کابوس بود. حالا همه چیز از یک داشبورد قابل کنترل است. پشتیبانی ۲۴/۷ آن‌ها هم عالی است.",
-    stats: { revenue: "+۱۸۰%", customers: "+۸۰۰", rating: 5.0 },
+    role: "صاحب سالن یاس",
+    image: "/avatars/avatar2.jpg",
+    content:
+      "گزارش‌های آینه کمک کرد بفهمم کدوم خدمات و روزها پرفروشن. بر اساس همون، شیفت‌ها و تخفیف‌ها رو تنظیم کردم و درآمد ماهانه‌ام به‌صورت محسوس بالا رفت.",
     rating: 5,
-    gradient: "from-luxury-sky-500 to-luxury-sky-600"
-  },
-  {
-    id: 3,
-    name: "فاطمه رضایی",
-    role: "بنیانگذار سالن لوتوس",
     location: "اصفهان",
-    avatar: "FR",
-    content: "از وقتی که از آینه استفاده می‌کنیم، مشتریان راضی‌تر هستند و پرسنل ما کمتر استرس دارند. گزارش‌های آنالیتیک به ما کمک کرد تصمیمات بهتری بگیریم.",
-    stats: { revenue: "+۳۲۰%", customers: "+۱۵۰۰", rating: 4.8 },
-    rating: 5,
-    gradient: "from-luxury-emerald-500 to-luxury-emerald-600"
   },
   {
-    id: 4,
-    name: "زهرا محمدی",
-    role: "مدیر زنجیره سالن‌های نگین",
-    location: "مشهد",
-    avatar: "ZM",
-    content: "پلتفرم حرفه‌ای با طراحی لوکس. مشتریان ما از اپلیکیشن موبایل و قابلیت رزرو آنلاین بسیار راضی هستند. بهترین سرمایه‌گذاری ما در ۵ سال گذشته!",
-    stats: { revenue: "+۴۵۰%", customers: "+۲۸۰۰", rating: 5.0 },
+    name: "نگار موسوی",
+    role: "مدیر سالن نیلوفر",
+    image: "/avatars/avatar3.jpg",
+    content:
+      "بزرگ‌ترین تفاوت برای من نظم کارهاست. تیم پذیرش کمتر اشتباه می‌کند، مشتری‌ها پیام یادآوری دریافت می‌کنند و ما خیلی کمتر نوبت از دست‌رفته داریم.",
     rating: 5,
-    gradient: "from-brand-gold to-luxury-gold-light"
+    location: "شیراز",
+  },
+  {
+    name: "لیلا رضایی",
+    role: "صاحب سالن یاسمن",
+    image: "/avatars/avatar4.jpg",
+    content:
+      "رابط کاربری ساده‌ست و پرسنل خیلی زود باهاش کنار آمدن. حتی همکارانی که با نرم‌افزار راحت نبودن، بعد از چند روز خودشان نوبت‌ها را مدیریت می‌کنند.",
+    rating: 5,
+    location: "مشهد",
+  },
+  {
+    name: "فاطمه حسینی",
+    role: "مدیر سالن لاله",
+    image: "/avatars/avatar5.jpg",
+    content:
+      "پیامک و نوتیفیکیشن خودکار باعث شده مشتری‌ها کمتر نوبت را فراموش کنند. آمار no-show تقریباً به حداقل رسیده و برنامه‌ریزی روزانه قابل‌ پیش‌بینی‌تر شده.",
+    rating: 5,
+    location: "کرج",
+  },
+  {
+    name: "زهرا امینی",
+    role: "صاحب سه شعبه پونه",
+    image: "/avatars/avatar6.jpg",
+    content:
+      "برای من مهم بود بتوانم هر سه شعبه را از یک جا ببینم. آینه این امکان را داده که آمار هر شعبه، عملکرد پرسنل و رزروها را یک‌جا چک کنم و تصمیم‌های سریع‌تر بگیرم.",
+    rating: 5,
+    location: "تبریز",
   },
 ];
 
-export default function PlatformTestimonials() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
+const TestimonialCard = ({
+  testimonial,
+  index,
+}: {
+  testimonial: (typeof testimonials)[number];
+  index: number;
+}) => {
   return (
-    <section className="relative py-32 bg-gradient-to-b from-[#050505] via-brand-dark to-[#050505] overflow-hidden">
-      
-      {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      className="relative group cursor-pointer h-full"
+    >
+      <div className="relative p-8 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all overflow-hidden h-full flex flex-col">
+        <NoiseTexture />
 
-      {/* Background Effects */}
+        {/* Gradient overlay on hover */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-brand-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        />
+
+        {/* Quote Icon */}
+        <div className="relative mb-6">
+          <motion.div
+            className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-gold/20 to-transparent flex items-center justify-center"
+            whileHover={{ rotate: 180 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Quote className="w-6 h-6 text-brand-gold" />
+          </motion.div>
+        </div>
+
+        {/* Content */}
+        <div className="relative mb-6 flex-1">
+          <p className="text-gray-300 leading-relaxed">
+            {testimonial.content}
+          </p>
+        </div>
+
+        {/* Rating */}
+        <div className="relative flex items-center gap-1 mb-6">
+          {Array.from({ length: testimonial.rating }).map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 + i * 0.08 }}
+            >
+              <Star className="w-4 h-4 text-brand-gold fill-brand-gold" />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Author */}
+        <div className="relative flex items-center gap-4">
+          {/* اگر خواستی آواتار واقعی استفاده کنی این بخش را جایگزین کن */}
+          {/* <div className="relative w-12 h-12 rounded-full overflow-hidden">
+            <Image
+              src={testimonial.image}
+              alt={testimonial.name}
+              fill
+              className="object-cover"
+            />
+          </div> */}
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-gold to-luxury-gold-light flex items-center justify-center text-black font-bold">
+            {testimonial.name.charAt(0)}
+          </div>
+          <div>
+            <h4 className="text-white font-semibold">{testimonial.name}</h4>
+            <p className="text-sm text-gray-500">
+              {testimonial.role} • {testimonial.location}
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom line */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+    </motion.div>
+  );
+};
+
+export default function PlatformTestimonials() {
+  return (
+    <section className="relative py-24 bg-gradient-to-b from-[#0a0a0a] to-[#050505] overflow-hidden">
+      <CustomCursorGlow />
+
+      {/* Noise Texture */}
+      <NoiseTexture />
+
+      {/* Background Glow (کمی سبک‌تر) */}
       <div className="absolute inset-0">
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-gold/5 rounded-full blur-3xl"
+          className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-luxury-sky-500/10 rounded-full blur-[80px]"
           animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3],
+            x: [0, 50, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.2, 1],
           }}
           transition={{
-            duration: 10,
+            duration: 20,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         />
       </div>
 
-      <div ref={ref} className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
-            <Award className="w-4 h-4 text-brand-gold" />
-            <span className="text-sm font-semibold text-white">موفقیت مشتریان</span>
-          </div>
-          
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            داستان‌های{" "}
-            <span className="bg-gradient-to-l from-brand-gold to-luxury-gold-light bg-clip-text text-transparent">
-              موفقیت
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-gradient-to-r from-brand-gold/20 to-luxury-gold-light/20 backdrop-blur-xl border border-brand-gold/30"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Star className="w-4 h-4 text-brand-gold fill-brand-gold" />
+            <span className="text-sm font-bold text-brand-gold">
+              نظرات مشتریان
+            </span>
+          </motion.div>
+
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+            داستان موفقیت{" "}
+            <span className="relative inline-block">
+              <span className="absolute -inset-1 bg-gradient-to-r from-brand-gold to-luxury-gold-light blur-2xl opacity-30"></span>
+              <span className="relative bg-gradient-to-r from-brand-gold to-luxury-gold-light bg-clip-text text-transparent">
+                مشتریان ما
+              </span>
             </span>
           </h2>
-          
-          <p className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            سالن‌هایی که با آینه رشد کرده‌اند
+
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            بیش از ۲,۵۰۰ سالن زیبایی در سراسر ایران، مدیریت روزانه خود را با آینه انجام می‌دهند.
           </p>
         </motion.div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.id}
-              initial={{ opacity: 0, y: 60 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{
-                delay: index * 0.15,
-                duration: 0.6,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              whileHover={{ y: -8 }}
-              className="group relative"
-            >
-              {/* Glow */}
-              <div className={`absolute -inset-0.5 bg-gradient-to-r ${testimonial.gradient} rounded-3xl opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500`} />
-              
-              <div className="relative h-full bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl p-8 group-hover:border-white/20 group-hover:bg-white/[0.06] transition-all duration-500 overflow-hidden">
-                
-                {/* Noise */}
-                <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
-
-                {/* Quote Icon */}
-                <div className="absolute top-8 right-8 w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center opacity-50">
-                  <Quote className="w-8 h-8 text-brand-gold" />
-                </div>
-
-                {/* Rating */}
-                <div className="relative flex items-center gap-1 mb-6">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < testimonial.rating
-                          ? 'text-brand-gold fill-brand-gold'
-                          : 'text-gray-600'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Content */}
-                <p className="relative text-gray-300 leading-relaxed mb-8">
-                  "{testimonial.content}"
-                </p>
-
-                {/* Stats */}
-                <div className="relative grid grid-cols-3 gap-4 mb-8 pb-8 border-b border-white/10">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-luxury-emerald-400 font-bold text-lg mb-1">
-                      <TrendingUp className="w-4 h-4" />
-                      <span>{testimonial.stats.revenue}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">درآمد</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-luxury-sky-400 font-bold text-lg mb-1">
-                      <Users className="w-4 h-4" />
-                      <span>{testimonial.stats.customers}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">مشتری جدید</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-brand-gold font-bold text-lg mb-1">
-                      <Star className="w-4 h-4" />
-                      <span>{testimonial.stats.rating}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">امتیاز</p>
-                  </div>
-                </div>
-
-                {/* Author */}
-                <div className="relative flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${testimonial.gradient} flex items-center justify-center text-white font-bold text-lg shadow-2xl`}>
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-white mb-1">
-                      {testimonial.name}
-                    </h4>
-                    <p className="text-sm text-gray-400">
-                      {testimonial.role} • {testimonial.location}
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-            </motion.div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {testimonials.map((testimonial, i) => (
+            <TestimonialCard
+              key={testimonial.name}
+              testimonial={testimonial}
+              index={i}
+            />
           ))}
         </div>
-
-        {/* Overall Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto"
-        >
-          {[
-            { value: '۲,۵۰۰+', label: 'سالن فعال', icon: Users },
-            { value: '۹۸٪', label: 'رضایت مشتریان', icon: Star },
-            { value: '۲۵۰٪', label: 'افزایش میانگین درآمد', icon: TrendingUp },
-            { value: '۲۴/۷', label: 'پشتیبانی', icon: Award },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              className="relative text-center p-6 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 group hover:border-white/20 hover:bg-white/[0.06] transition-all duration-500 overflow-hidden"
-              whileHover={{ y: -4 }}
-            >
-              {/* Noise */}
-              <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none bg-[url('/noise.png')]" />
-              
-              <div className="relative inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 mb-4 group-hover:bg-white/10 transition-colors">
-                <stat.icon className="w-6 h-6 text-brand-gold" />
-              </div>
-              <div className="relative font-serif text-3xl font-bold text-white mb-2">
-                {stat.value}
-              </div>
-              <p className="relative text-sm text-gray-400">{stat.label}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-
       </div>
     </section>
   );
