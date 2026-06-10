@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Loader2, CheckCircle, RotateCcw, MoveRight } from "lucide-react";
 import Link from "next/link";
@@ -8,11 +8,13 @@ import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import AynehLogo from "@/components/AynehLogo";
 
-const LoginShader = dynamic(() => import("@/components/LoginShader"), { ssr: false });
+const LoginShader = dynamic(() => import("@/components/LoginShader"), {
+  ssr: false,
+});
 
 type Step = "email" | "sent";
 
-/* ─────────── Input بدون هیچ border/outline کثیف ─────────── */
+/* ─────────── Input ─────────── */
 function CleanInput({
   value,
   onChange,
@@ -20,6 +22,7 @@ function CleanInput({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const [focused, setFocused] = useState(false);
   return (
     <div
       style={{
@@ -28,13 +31,22 @@ function CleanInput({
         gap: 12,
         padding: "15px 18px",
         borderRadius: 12,
-        background: "rgba(255,255,255,0.04)",
-        borderBottom: "1px solid rgba(198,168,124,0.25)",
+        background: focused
+          ? "rgba(198,168,124,0.04)"
+          : "rgba(255,255,255,0.03)",
+        border: `1px solid ${
+          focused ? "rgba(198,168,124,0.35)" : "rgba(255,255,255,0.07)"
+        }`,
+        transition: "all 0.3s ease",
       }}
     >
       <Mail
         size={14}
-        style={{ color: "rgba(198,168,124,0.5)", flexShrink: 0 }}
+        style={{
+          color: focused ? "rgba(198,168,124,0.7)" : "rgba(198,168,124,0.35)",
+          flexShrink: 0,
+          transition: "color 0.3s",
+        }}
       />
       <input
         type="email"
@@ -42,13 +54,15 @@ function CleanInput({
         dir="ltr"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         autoFocus
         style={{
           background: "transparent",
           border: "none",
           outline: "none",
           boxShadow: "none",
-          WebkitAppearance: "none",
+          WebkitAppearance: "none" as const,
           width: "100%",
           fontSize: 14,
           fontFamily: "'SF Mono', 'Fira Code', 'Courier New', monospace",
@@ -61,7 +75,7 @@ function CleanInput({
   );
 }
 
-/* ─────────── فرم (مشترک بین desktop و mobile) ─────────── */
+/* ─────────── FormContent ─────────── */
 function FormContent({
   step,
   email,
@@ -105,11 +119,12 @@ function FormContent({
                 gap: 8,
                 fontSize: 10,
                 letterSpacing: "0.38em",
-                textTransform: "uppercase",
+                textTransform: "uppercase" as const,
                 color: "rgba(198,168,124,0.6)",
-                padding: "5px 13px",
+                padding: "5px 14px",
                 borderRadius: 999,
                 border: "1px solid rgba(198,168,124,0.15)",
+                background: "rgba(198,168,124,0.03)",
               }}
             >
               <span
@@ -118,6 +133,7 @@ function FormContent({
                   height: 4,
                   borderRadius: "50%",
                   background: "#C6A87C",
+                  boxShadow: "0 0 6px rgba(198,168,124,0.6)",
                 }}
               />
               Members Only
@@ -134,21 +150,22 @@ function FormContent({
             <h1
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: "clamp(1.75rem, 4vw, 2.4rem)",
+                fontSize: "clamp(1.75rem, 3.5vw, 2.4rem)",
                 fontWeight: 700,
                 color: "#ffffff",
-                lineHeight: 1.25,
+                lineHeight: 1.2,
                 letterSpacing: "-0.02em",
-                marginBottom: 12,
+                marginBottom: 14,
               }}
             >
-              آماده‌ای؟
+              جایت اینجاست.
             </h1>
             <p
               style={{
-                fontSize: "clamp(13px, 1.4vw, 14px)",
+                fontSize: 13,
                 color: "rgba(255,255,255,0.32)",
-                lineHeight: 1.9,
+                lineHeight: 1.95,
+                letterSpacing: "0.01em",
               }}
             >
               یک ایمیل — یک کلیک — داخلی.
@@ -163,22 +180,22 @@ function FormContent({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 18,
-              padding: "24px",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
+              background: "rgba(255,255,255,0.025)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 20,
+              padding: "26px",
+              backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
             }}
           >
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
                 <label
                   style={{
                     display: "block",
                     fontSize: 10,
                     letterSpacing: "0.3em",
-                    textTransform: "uppercase",
+                    textTransform: "uppercase" as const,
                     color: "rgba(255,255,255,0.18)",
                     marginBottom: 10,
                   }}
@@ -196,9 +213,8 @@ function FormContent({
                     exit={{ opacity: 0, height: 0 }}
                     style={{
                       fontSize: 12,
-                      color: "rgba(248,113,113,0.7)",
-                      textAlign: "center",
-                      paddingTop: 4,
+                      color: "rgba(248,113,113,0.75)",
+                      textAlign: "center" as const,
                     }}
                   >
                     {error}
@@ -213,9 +229,9 @@ function FormContent({
                 style={{
                   width: "100%",
                   padding: "14px",
-                  borderRadius: 12,
+                  borderRadius: 13,
                   fontWeight: 600,
-                  fontSize: "clamp(13px, 1.4vw, 14px)",
+                  fontSize: 14,
                   letterSpacing: "0.06em",
                   border: "none",
                   cursor: valid ? "pointer" : "not-allowed",
@@ -225,7 +241,7 @@ function FormContent({
                   color: valid ? "#0a0806" : "rgba(255,255,255,0.18)",
                   transition: "all 0.35s cubic-bezier(0.33,1,0.68,1)",
                   boxShadow: valid
-                    ? "0 6px 24px rgba(198,168,124,0.25)"
+                    ? "0 8px 28px rgba(198,168,124,0.28), 0 2px 8px rgba(198,168,124,0.15)"
                     : "none",
                   display: "flex",
                   alignItems: "center",
@@ -251,34 +267,22 @@ function FormContent({
                 gap: 12,
                 marginTop: 20,
                 paddingTop: 18,
-                borderTop: "1px solid rgba(255,255,255,0.04)",
+                borderTop: "1px solid rgba(255,255,255,0.05)",
               }}
             >
-              <div
-                style={{
-                  flex: 1,
-                  height: 1,
-                  background: "rgba(255,255,255,0.04)",
-                }}
-              />
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.04)" }} />
               <span
                 style={{
                   fontSize: 10,
                   letterSpacing: "0.22em",
-                  textTransform: "uppercase",
+                  textTransform: "uppercase" as const,
                   color: "rgba(255,255,255,0.12)",
-                  whiteSpace: "nowrap",
+                  whiteSpace: "nowrap" as const,
                 }}
               >
                 No Password · Instant Access
               </span>
-              <div
-                style={{
-                  flex: 1,
-                  height: 1,
-                  background: "rgba(255,255,255,0.04)",
-                }}
-              />
+              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.04)" }} />
             </div>
           </motion.div>
 
@@ -290,14 +294,12 @@ function FormContent({
               marginTop: 18,
               fontSize: 11,
               color: "rgba(255,255,255,0.12)",
-              textAlign: "center",
+              textAlign: "center" as const,
               lineHeight: 1.7,
             }}
           >
             با ادامه،{" "}
-            <span style={{ color: "rgba(198,168,124,0.35)" }}>
-              قوانین آینه
-            </span>{" "}
+            <span style={{ color: "rgba(198,168,124,0.38)" }}>قوانین آینه</span>{" "}
             رو می‌پذیری
           </motion.p>
         </motion.div>
@@ -310,35 +312,30 @@ function FormContent({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
           style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 18,
-            padding: "36px 28px",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            textAlign: "center",
+            background: "rgba(255,255,255,0.025)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 20,
+            padding: "40px 28px",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            textAlign: "center" as const,
           }}
         >
           <motion.div
             initial={{ scale: 0, rotate: -15 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{
-              delay: 0.1,
-              type: "spring",
-              stiffness: 240,
-              damping: 17,
-            }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 240, damping: 17 }}
             style={{
               width: 64,
               height: 64,
               borderRadius: "50%",
               background: "rgba(198,168,124,0.06)",
-              border: "1px solid rgba(198,168,124,0.2)",
+              border: "1px solid rgba(198,168,124,0.22)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 24px",
-              boxShadow: "0 0 28px rgba(198,168,124,0.1)",
+              boxShadow: "0 0 32px rgba(198,168,124,0.12)",
             }}
           >
             <CheckCircle size={28} style={{ color: "#C6A87C" }} strokeWidth={1.5} />
@@ -353,12 +350,12 @@ function FormContent({
               style={{
                 fontSize: 9,
                 letterSpacing: "0.42em",
-                textTransform: "uppercase",
+                textTransform: "uppercase" as const,
                 color: "rgba(198,168,124,0.55)",
                 marginBottom: 10,
               }}
             >
-              Sent
+              Access Granted
             </p>
             <h2
               style={{
@@ -370,22 +367,22 @@ function FormContent({
                 marginBottom: 14,
               }}
             >
-              چک کن.
+              لینکت رسید.
             </h2>
             <p
               style={{
                 fontSize: 13,
-                color: "rgba(255,255,255,0.3)",
+                color: "rgba(255,255,255,0.32)",
                 lineHeight: 2,
               }}
             >
-              لینک ورود رفت به{" "}
+              ایمیلی به{" "}
               <span
                 style={{
                   fontFamily: "monospace",
                   fontSize: 12,
-                  color: "rgba(255,255,255,0.6)",
-                  background: "rgba(255,255,255,0.05)",
+                  color: "rgba(255,255,255,0.62)",
+                  background: "rgba(255,255,255,0.06)",
                   padding: "2px 8px",
                   borderRadius: 5,
                 }}
@@ -393,7 +390,7 @@ function FormContent({
                 {email}
               </span>
               <br />
-              اگه نیومد، اسپم رو نگاه کن.
+              فرستادیم. اسپم رو هم چک کن.
             </p>
           </motion.div>
 
@@ -455,7 +452,9 @@ export default function Login() {
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
       if (authError) throw authError;
       setStep("sent");
@@ -473,12 +472,14 @@ export default function Login() {
     loading,
     error,
     onSubmit: handleSubmit,
-    onReset: () => { setStep("email"); setError(""); },
+    onReset: () => {
+      setStep("email");
+      setError("");
+    },
   };
 
   return (
     <>
-      {/* فونت Playfair */}
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap"
@@ -492,14 +493,14 @@ export default function Login() {
           fontFamily: "'Vazirmatn', 'Tahoma', sans-serif",
         }}
       >
-        {/* ══════ DESKTOP ══════ */}
+        {/* ══════════════════════════
+             DESKTOP — Split Layout
+            ══════════════════════════ */}
         <div
-          style={{
-            display: "none",
-          }}
-          className="lg:flex min-h-screen"
+          className="hidden lg:flex"
+          style={{ minHeight: "100vh" }}
         >
-          {/* ستون چپ — Shader */}
+          {/* ستون چپ — Shader + محتوا */}
           <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
             <LoginShader />
 
@@ -510,7 +511,7 @@ export default function Login() {
                 inset: 0,
                 zIndex: 10,
                 background:
-                  "linear-gradient(to right, transparent 50%, #050505 100%)",
+                  "linear-gradient(to right, transparent 45%, #050505 100%)",
               }}
             />
             {/* فید پایین */}
@@ -520,7 +521,7 @@ export default function Login() {
                 inset: 0,
                 zIndex: 10,
                 background:
-                  "linear-gradient(to top, #050505 0%, transparent 38%)",
+                  "linear-gradient(to top, #050505 0%, transparent 35%)",
               }}
             />
 
@@ -549,7 +550,7 @@ export default function Login() {
               >
                 <div
                   style={{
-                    filter: "drop-shadow(0 0 14px rgba(198,168,124,0.35))",
+                    filter: "drop-shadow(0 0 14px rgba(198,168,124,0.4))",
                     transition: "transform 0.3s ease",
                   }}
                   onMouseEnter={(e) =>
@@ -570,28 +571,26 @@ export default function Login() {
                     fontSize: "clamp(16px, 1.6vw, 20px)",
                     letterSpacing: "0.32em",
                     color: "white",
-                    textDecoration: "none",
                   }}
                 >
                   AYNEH
                 </span>
               </Link>
 
-              {/* متن پایین shader — هدفمند، انسانی */}
-              <div style={{ maxWidth: 320 }}>
+              {/* کوت پایین */}
+              <div style={{ maxWidth: 300 }}>
                 <div
                   style={{
                     width: 28,
                     height: 1,
-                    background:
-                      "linear-gradient(90deg, #C6A87C, transparent)",
+                    background: "linear-gradient(90deg, #C6A87C, transparent)",
                     marginBottom: 20,
                   }}
                 />
                 <p
                   style={{
                     fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: "clamp(1.4rem, 2vw, 1.85rem)",
+                    fontSize: "clamp(1.35rem, 2vw, 1.8rem)",
                     fontWeight: 700,
                     lineHeight: 1.35,
                     color: "white",
@@ -604,32 +603,24 @@ export default function Login() {
                 </p>
                 <p
                   style={{
-                    fontSize: "clamp(12px, 1.1vw, 13px)",
-                    color: "rgba(255,255,255,0.3)",
+                    fontSize: 13,
+                    color: "rgba(255,255,255,0.28)",
                     lineHeight: 2,
-                    letterSpacing: "0.01em",
                   }}
                 >
                   تجربه‌ای که دقیقاً برای تو
                   <br />
                   طراحی شده — نه برای همه.
                 </p>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 20,
-                    marginTop: 22,
-                  }}
-                >
+                <div style={{ display: "flex", gap: 20, marginTop: 22 }}>
                   {["Luxury", "Personal", "Exclusive"].map((tag) => (
                     <span
                       key={tag}
                       style={{
                         fontSize: 9,
                         letterSpacing: "0.32em",
-                        textTransform: "uppercase",
-                        color: "rgba(198,168,124,0.38)",
+                        textTransform: "uppercase" as const,
+                        color: "rgba(198,168,124,0.35)",
                       }}
                     >
                       {tag}
@@ -653,16 +644,16 @@ export default function Login() {
               position: "relative",
             }}
           >
-            {/* خط جداکننده */}
+            {/* خط جداکننده طلایی */}
             <div
               style={{
                 position: "absolute",
                 left: 0,
-                top: "12%",
-                bottom: "12%",
+                top: "10%",
+                bottom: "10%",
                 width: 1,
                 background:
-                  "linear-gradient(to bottom, transparent, rgba(198,168,124,0.12), transparent)",
+                  "linear-gradient(to bottom, transparent, rgba(198,168,124,0.14), transparent)",
               }}
             />
 
@@ -675,7 +666,7 @@ export default function Login() {
                 gap: 6,
                 fontSize: 11,
                 letterSpacing: "0.2em",
-                textTransform: "uppercase",
+                textTransform: "uppercase" as const,
                 color: "rgba(255,255,255,0.18)",
                 textDecoration: "none",
                 marginBottom: 52,
@@ -701,7 +692,7 @@ export default function Login() {
                 marginTop: "auto",
                 paddingTop: 52,
                 fontSize: 10,
-                color: "rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.07)",
                 letterSpacing: "0.1em",
               }}
             >
@@ -710,7 +701,9 @@ export default function Login() {
           </div>
         </div>
 
-        {/* ══════ MOBILE ══════ */}
+        {/* ══════════════════════════
+             MOBILE
+            ══════════════════════════ */}
         <div
           className="lg:hidden"
           style={{
@@ -726,7 +719,7 @@ export default function Login() {
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(to bottom, rgba(5,5,5,0.5) 0%, rgba(5,5,5,0.82) 45%, #050505 100%)",
+                "linear-gradient(to bottom, rgba(5,5,5,0.45) 0%, rgba(5,5,5,0.8) 45%, #050505 100%)",
             }}
           />
 
@@ -774,7 +767,7 @@ export default function Login() {
                 href="/"
                 style={{
                   fontSize: 11,
-                  color: "rgba(255,255,255,0.25)",
+                  color: "rgba(255,255,255,0.22)",
                   letterSpacing: "0.15em",
                   textDecoration: "none",
                 }}
@@ -799,18 +792,12 @@ export default function Login() {
             </div>
 
             {/* فوتر موبایل */}
-            <footer
-              style={{
-                padding: "20px 24px 36px",
-                textAlign: "center",
-              }}
-            >
+            <footer style={{ padding: "20px 24px 36px", textAlign: "center" }}>
               <p
                 style={{
                   fontSize: 12,
-                  color: "rgba(255,255,255,0.18)",
+                  color: "rgba(255,255,255,0.16)",
                   fontStyle: "italic",
-                  letterSpacing: "0.02em",
                 }}
               >
                 «هر بار که می‌آی، می‌دانیم که کیستی.»
