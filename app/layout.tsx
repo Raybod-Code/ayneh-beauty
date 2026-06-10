@@ -100,9 +100,10 @@ export default async function RootLayout({
   const headersList = await headers();
   const pathname = headersList.get("x-invoke-path") || "";
 
-  // تشخیص اینکه آیا در پنل ادمین/سوپرادمین هستیم
   const isAdminPanel = pathname.startsWith("/admin") || pathname.startsWith("/superadmin");
   const isSalonPanel = pathname.startsWith("/salon");
+  // صفحاتی که نباید Navbar/Footer داشته باشن
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/auth");
 
   const isRtl = tenant?.public_config?.rtl ?? true;
   const dir = isRtl ? "rtl" : "ltr";
@@ -111,7 +112,7 @@ export default async function RootLayout({
 
   const isSuspended = tenant && tenant.status !== "active";
 
-  // برای پنل‌های ادمین و salon، layout ساده بدون navbar/footer
+  // پنل‌های ادمین و salon — layout ساده
   if (isAdminPanel || isSalonPanel) {
     return (
       <html
@@ -135,7 +136,32 @@ export default async function RootLayout({
     );
   }
 
-  // برای صفحات عمومی، layout کامل با navbar/footer
+  // صفحات auth (login / auth/callback) — بدون Navbar و Footer
+  if (isAuthPage) {
+    return (
+      <html
+        lang={lang}
+        dir={dir}
+        className={`${doran.variable} ${playfair.variable}`}
+        suppressHydrationWarning
+      >
+        <head>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        </head>
+        <body className="font-sans bg-brand-bg text-brand-light">
+          <TenantProvider tenant={tenant}>
+            <CustomCursor />
+            {children}
+          </TenantProvider>
+        </body>
+      </html>
+    );
+  }
+
+  // صفحات عمومی — layout کامل با Navbar و Footer
   return (
     <html
       lang={lang}
