@@ -35,7 +35,8 @@
 /* ==================== BASE LAYER ==================== */
 @layer base {
   body {
-    @apply bg-luxury-slate-50 text-luxury-slate-900 antialiased;
+    font-family: var(--font-doran), sans-serif;
+    @apply antialiased;
     position: relative;
     overflow-x: hidden;
     background-color: var(--theme-background);
@@ -55,90 +56,43 @@
     z-index: 1;
   }
 
-  /* Typography */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-serif tracking-tight;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-doran), sans-serif;
+    @apply tracking-tight;
     color: var(--theme-text);
   }
 
-  h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+  /* فقط کلاس font-serif برای متن‌های لاتین مثل AYNEH */
+  .font-serif {
+    font-family: var(--font-playfair), serif;
   }
 
-  h2 {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold leading-snug;
-  }
-
-  h3 {
-    @apply text-2xl md:text-3xl lg:text-4xl font-semibold leading-normal;
-  }
-
-  h4 {
-    @apply text-xl md:text-2xl font-semibold;
-  }
-
-  h5 {
-    @apply text-lg md:text-xl font-semibold;
-  }
-
-  h6 {
-    @apply text-base md:text-lg font-semibold;
-  }
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight; }
+  h2 { @apply text-3xl md:text-4xl lg:text-5xl font-bold leading-snug; }
+  h3 { @apply text-2xl md:text-3xl lg:text-4xl font-semibold leading-normal; }
+  h4 { @apply text-xl md:text-2xl font-semibold; }
+  h5 { @apply text-lg md:text-xl font-semibold; }
+  h6 { @apply text-base md:text-lg font-semibold; }
 
   p {
+    font-family: var(--font-doran), sans-serif;
     @apply leading-relaxed;
     color: var(--theme-text-muted);
   }
 
-  ::selection {
-    @apply bg-luxury-gold-200 text-luxury-slate-900;
-  }
+  ::selection { @apply bg-luxury-gold-200 text-luxury-slate-900; }
+  ::-moz-selection { @apply bg-luxury-gold-200 text-luxury-slate-900; }
 
-  ::-moz-selection {
-    @apply bg-luxury-gold-200 text-luxury-slate-900;
-  }
-
-  [dir="rtl"] body {
-    direction: rtl;
-  }
-
-  [dir="rtl"] .slide-in-right {
-    animation: slideInLeft 0.4s ease-out;
-  }
-
-  @keyframes slideInLeft {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
-
-  .dark body {
-    @apply bg-luxury-slate-950 text-luxury-slate-50;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
   }
 }
-
 /* ==================== COMPONENTS LAYER ==================== */
 @layer components {
   /* Scrollbar */
