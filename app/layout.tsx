@@ -14,7 +14,6 @@ import { CartProvider } from "@/app/context/CartContext";
 import AIWidget from "@/components/AIWidget";
 import { ColorProvider } from "@/app/context/ColorContext";
 import { TenantProvider } from "@/lib/tenant/context";
-
 import { getTenantFromRequest } from "@/lib/tenant/get-tenant";
 
 export const metadata: Metadata = {
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
     url: "https://ayneh-beauty.vercel.app",
     title: "AYNEH | جایی که زیبایی بازتاب توست",
     description:
-      "اولین بیوتی لانژ هوشمند ایران. همین حالا استایل خود را با هوش مصنوعی آنالیز کنید.",
+      "اولین بیوتی لانژ هوشمند ایران.",
     siteName: "Ayneh Beauty",
     images: [
       {
@@ -98,21 +97,25 @@ export default async function RootLayout({
 }) {
   const tenant = await getTenantFromRequest();
   const headersList = await headers();
-  const pathname = headersList.get("x-invoke-path") || "";
 
-  const isAdminPanel = pathname.startsWith("/admin") || pathname.startsWith("/superadmin");
+  // middleware.ts این header رو ست می‌کنه — قابل اعتماد در Next.js 15
+  const pathname = headersList.get("x-pathname") ?? "";
+
+  const isAdminPanel =
+    pathname.startsWith("/admin") || pathname.startsWith("/superadmin");
   const isSalonPanel = pathname.startsWith("/salon");
-  // صفحاتی که نباید Navbar/Footer داشته باشن
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/auth");
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname.startsWith("/auth");
 
   const isRtl = tenant?.public_config?.rtl ?? true;
   const dir = isRtl ? "rtl" : "ltr";
   const lang = tenant?.locale ?? "fa";
   const primaryColor = tenant?.theme?.primary ?? "#C8A951";
-
   const isSuspended = tenant && tenant.status !== "active";
 
-  // پنل‌های ادمین و salon — layout ساده
+  // پنل‌های ادمین و salon
   if (isAdminPanel || isSalonPanel) {
     return (
       <html
@@ -125,18 +128,19 @@ export default async function RootLayout({
           <link rel="manifest" href="/manifest.json" />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+          />
         </head>
         <body className="font-sans bg-brand-bg text-brand-light">
-          <TenantProvider tenant={tenant}>
-            {children}
-          </TenantProvider>
+          <TenantProvider tenant={tenant}>{children}</TenantProvider>
         </body>
       </html>
     );
   }
 
-  // صفحات auth (login / auth/callback) — بدون Navbar و Footer
+  // صفحات auth — بدون Navbar و Footer
   if (isAuthPage) {
     return (
       <html
@@ -149,7 +153,10 @@ export default async function RootLayout({
           <link rel="manifest" href="/manifest.json" />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+          />
         </head>
         <body className="font-sans bg-brand-bg text-brand-light">
           <TenantProvider tenant={tenant}>
@@ -161,7 +168,7 @@ export default async function RootLayout({
     );
   }
 
-  // صفحات عمومی — layout کامل با Navbar و Footer
+  // صفحات عمومی — layout کامل
   return (
     <html
       lang={lang}
@@ -173,15 +180,14 @@ export default async function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
       </head>
       <body
         className="font-sans bg-brand-bg text-brand-light"
-        style={
-          {
-            "--ayneh-primary": primaryColor,
-          } as React.CSSProperties
-        }
+        style={{ "--ayneh-primary": primaryColor } as React.CSSProperties}
       >
         <TenantProvider tenant={tenant}>
           {isSuspended ? (
@@ -190,8 +196,7 @@ export default async function RootLayout({
                 دسترسی این سالن موقتاً غیرفعال شده است
               </h1>
               <p className="max-w-md text-sm md:text-base text-neutral-400">
-                لطفاً برای فعال‌سازی دوباره سرویس با پشتیبانی آینه یا مدیر سالن
-                تماس بگیرید.
+                لطفاً برای فعال‌سازی دوباره سرویس با پشتیبانی آینه یا مدیر سالن تماس بگیرید.
               </p>
             </main>
           ) : (
