@@ -24,6 +24,7 @@ function resolveTenantSlug(hostname: string | null) {
 
 function shouldSkipTenant(request: NextRequest) {
   const p = request.nextUrl.pathname;
+  
 
   // God Panel: کاملاً مستقل از tenant
   if (p.startsWith("/superadmin")) return true;
@@ -36,6 +37,8 @@ function shouldSkipTenant(request: NextRequest) {
 
 export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
+  // ✅ این خط رو اضافه کن
+requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
   const hostname = getHostname(request.headers.get("host"));
   if (hostname) requestHeaders.set("x-ayneh-host", hostname);
