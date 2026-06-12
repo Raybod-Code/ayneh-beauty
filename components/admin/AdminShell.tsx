@@ -279,18 +279,14 @@ function NotifPanel({
               <motion.div
                 key={n.id}
                 layout
-                className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer ${
-                  !n.read ? "bg-white/2" : ""
-                }`}
+                className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 hover:bg-white/3 transition-colors cursor-pointer ${!n.read ? "bg-white/2" : ""}`}
                 onClick={() => onMarkRead(n.id)}
               >
                 <div className={`mt-0.5 w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${NOTIF_BG[n.type]}`}>
                   <Icon size={14} className={NOTIF_COLORS[n.type]} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-xs leading-relaxed ${
-                    n.read ? "text-white/40" : "text-white/80"
-                  }`}>
+                  <p className={`text-xs leading-relaxed ${n.read ? "text-white/40" : "text-white/80"}`}>
                     {n.text}
                   </p>
                   {n.subtext && (
@@ -461,9 +457,6 @@ export default function AdminShell({
     secretary: "منشی",
   };
 
-  // ─── Sidebar width for layout ───
-  const sidebarW = collapsed ? 72 : 240;
-
   return (
     <>
       <Toaster
@@ -505,16 +498,7 @@ export default function AdminShell({
         <motion.aside
           animate={{ width: collapsed ? 72 : 240 }}
           transition={{ type: "spring", stiffness: 380, damping: 35 }}
-          className={`
-            fixed top-0 right-0 h-full z-40 flex flex-col
-            bg-[#0d0d14] border-l border-white/5
-            lg:relative lg:translate-x-0
-            ${
-              mobileOpen
-                ? "translate-x-0"
-                : "translate-x-full lg:translate-x-0"
-            }
-          `}
+          className={`fixed top-0 right-0 h-full z-40 flex flex-col bg-[#0d0d14] border-l border-white/5 lg:relative lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}
         >
           {/* Brand */}
           <div className="flex items-center gap-3 px-4 py-5 border-b border-white/5 min-h-[72px]">
@@ -547,13 +531,7 @@ export default function AdminShell({
           <div className="px-3 py-3 border-b border-white/5">
             <button
               onClick={() => setCmdOpen(true)}
-              className={`
-                w-full flex items-center gap-2.5 px-3 py-2
-                bg-white/4 hover:bg-white/7 border border-white/6 hover:border-white/10
-                rounded-xl text-white/30 hover:text-white/50
-                transition-all duration-200 group
-                ${ collapsed ? "justify-center" : "" }
-              `}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 bg-white/4 hover:bg-white/7 border border-white/6 hover:border-white/10 rounded-xl text-white/30 hover:text-white/50 transition-all duration-200 group ${collapsed ? "justify-center" : ""}`}
             >
               <Search size={13} className="shrink-0" />
               <AnimatePresence>
@@ -594,16 +572,7 @@ export default function AdminShell({
                   onClick={() => setMobileOpen(false)}
                   onMouseEnter={() => setHoveredItem(item.href)}
                   onMouseLeave={() => setHoveredItem(null)}
-                  className={`
-                    relative flex items-center gap-3 px-3 py-2.5 rounded-xl
-                    transition-all duration-200 group overflow-hidden
-                    ${ collapsed ? "justify-center" : "" }
-                    ${
-                      active
-                        ? "bg-[#c9a96e]/12 text-[#c9a96e]"
-                        : "text-white/40 hover:text-white/80 hover:bg-white/4"
-                    }
-                  `}
+                  className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group overflow-hidden ${collapsed ? "justify-center" : ""} ${active ? "bg-[#c9a96e]/12 text-[#c9a96e]" : "text-white/40 hover:text-white/80 hover:bg-white/4"}`}
                 >
                   {/* Active indicator */}
                   {active && (
@@ -617,9 +586,7 @@ export default function AdminShell({
                   {/* Icon */}
                   <item.icon
                     size={17}
-                    className={`shrink-0 transition-transform duration-200 ${
-                      hoveredItem === item.href && !active ? "scale-110" : ""
-                    }`}
+                    className={`shrink-0 transition-transform duration-200 ${hoveredItem === item.href && !active ? "scale-110" : ""}`}
                   />
 
                   {/* Label */}
@@ -649,16 +616,9 @@ export default function AdminShell({
                     )}
                   </AnimatePresence>
 
-                  {/* Collapsed tooltip */}
+                  {/* Collapsed tooltip — single-line className, no multiline string */}
                   {collapsed && (
-                    <div className="
-                      absolute right-full mr-3 px-2.5 py-1.5
-                      bg-[#1a1a24] border border-white/10 rounded-lg
-                      text-xs text-white/80 whitespace-nowrap
-                      opacity-0 pointer-events-none group-hover:opacity-100
-                      transition-opacity duration-150 shadow-xl
-                      z-50
-                    ">
+                    <div className="absolute right-full mr-3 px-2.5 py-1.5 bg-[#1a1a24] border border-white/10 rounded-lg text-xs text-white/80 whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 shadow-xl z-50">
                       {item.title}
                     </div>
                   )}
@@ -670,7 +630,7 @@ export default function AdminShell({
           {/* Bottom: user + collapse toggle */}
           <div className="border-t border-white/5 p-3 space-y-2">
             {/* User info */}
-            <div className={`flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/4 transition-colors group ${ collapsed ? "justify-center" : "" }`}>
+            <div className={`flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-white/4 transition-colors group ${collapsed ? "justify-center" : ""}`}>
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c9a96e]/30 to-[#8a6c3e]/20 border border-[#c9a96e]/20 flex items-center justify-center shrink-0">
                 <span className="text-xs font-bold text-[#c9a96e]">
                   {salonDisplayName.charAt(0)}
@@ -712,7 +672,7 @@ export default function AdminShell({
             {/* Collapse toggle */}
             <button
               onClick={() => setCollapsed((v) => !v)}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-white/20 hover:text-white/50 hover:bg-white/4 rounded-xl transition-all text-xs ${ collapsed ? "justify-center" : "" }`}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-white/20 hover:text-white/50 hover:bg-white/4 rounded-xl transition-all text-xs ${collapsed ? "justify-center" : ""}`}
             >
               <motion.div
                 animate={{ rotate: collapsed ? 180 : 0 }}
